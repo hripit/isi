@@ -15,6 +15,7 @@ def get_pair_list():
 def make_trade_list(sy, pair_list):
     isi = list()
     for row in pair_list:
+        # уберем все не нужное
         if not row['status'] == 'TRADING' or \
                 "SPOT" not in row['permissions'] or \
                 "LIMIT" not in row['orderTypes'] or \
@@ -22,7 +23,7 @@ def make_trade_list(sy, pair_list):
                 'MARKET' not in row['orderTypes'] or \
                 not row['quoteOrderQtyMarketAllowed']:
             continue
-
+        # если этот токен участвует в торговое паре, их же может быть дохрена.
         if row['baseAsset'] == sy or row['quoteAsset'] == sy:
             side = 'BUY' if not row['baseAsset'] == sy else 'SELL'
             s = row['baseAsset'] if not row['baseAsset'] == sy else row['quoteAsset']
@@ -60,14 +61,19 @@ if __name__ == '__main__':
     # Сложная шаманская ботва, которая выдает нужный результат.
     for ii, sym in enumerate(symbols, 1):
         cnt = 1
+        # посторим символы для первых тогров
         isi1 = make_trade_list(sym, all_pair_list)
         for i1 in isi1:
             sym2 = i1[0]['baseAsset'] if not sym == i1[0]['baseAsset'] else i1[0]['quoteAsset']
+            # посторим символы для вторых тогров
             isi2 = make_trade_list(sym2, all_pair_list)
             for i2 in isi2:
                 sym3 = i2[0]['baseAsset'] if not sym2 == i2[0]['baseAsset'] else i2[0]['quoteAsset']
+                # посторим символы для третьих тогров
                 isi3 = make_trade_list(sym3, all_pair_list)
                 for i3 in isi3:
+                    # вот здесь вся идея и состоит, мы должны вложить определенную монету,
+                    # а через несколько торговых позиций получить ее обратно. Обозначим это.
                     if sym == i3[1]:
                         print(ii, ' - ', cnt, sym,
                               i1[0]['symbol'], i1[2], i1[1],
